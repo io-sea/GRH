@@ -1,0 +1,75 @@
+%define sourcename @CPACK_SOURCE_PACKAGE_FILE_NAME@
+%global dev_version %{lua: extraver = string.gsub('@LIBGRH_EXTRA_VERSION@', '%-', '.'); print(extraver) }
+
+Name: libgrh
+Version: @LIBGRH_BASE_VERSION@
+Release: 0%{dev_version}%{?dist}
+Summary: Library to handle requests for a specific backend
+License: LGPLv3
+Group: Development/Libraries
+Source0: %{sourcename}.tar.gz
+
+%description handler
+Rest server (python script and unit file), celery workers (python code and unit file) to defer requests.
+
+%package handler
+Summary: Rest server and celery workers to defer requests
+Requires: redis
+BuildRequires: systemd
+%{?systemd_requires}
+BuildArch: noarch
+
+%if 0%{?rhel} >= 8
+Requires: python3
+Requires: python3-flask
+Requires: python3-celery
+Requires: python3-redis
+%else
+Requires: python36
+%endif
+
+%prep
+%setup -q -n %{sourcename}
+
+%build
+%configure --disable-static
+make %{?_smp_mflags}
+cd handler
+%{__python3} setup.py build --verbose
+
+%install
+%make_install
+# handler's stuff
+cd %{_builddir}/%{name}-%{version}/handler
+# python modules
+%{__python3} setup.py install --single-version-externally-managed -O1 --root=%{buildroot} --install-scripts %{_sbindir} --record=HANDLER_INSTALLED_FILES
+# services unitfiles
+install -Dm644 systemd/grh_handler.service %{buildroot}%{_unitdir}/grh_handler.service
+install -Dm644 systemd/grh_celery.service %{buildroot}%{_unitdir}/grh_celery.service
+# services configuration
+install -Dm644 systemd/grh_handler.conf %{buildroot}%{_sysconfdir}/sysconfig/grh_handler
+install -Dm644 systemd/grh_celery.conf %{buildroot}%{_sysconfdir}/sysconfig/grh_celery
+# grh_celery log dir
+mkdir -m 0755 -p %{buildroot}%{_localstatedir}/log/grh_celery
+
+%files handler -f %{_builddir}/%{name}-%{version}/handler/HANDLER_INSTALLED_FILES
+%{_unitdir}/grh_celery.service
+%{_unitdir}/grh_handler.service
+%config(noreplace) %{_sysconfdir}/sysconfig/grh_handler
+%config(noreplace) %{_sysconfdir}/sysconfig/grh_celery
+%dir %{_localstatedir}/log/grh_celery
+
+%post migrator
+%systemd_post grh_handler.service grh_celery.service
+
+%preun migrator
+%systemd_preun grh_handler.service grh_celery.service
+
+%postun migrator
+%systemd_postun_with_restart grh_handler.service grh_celery.service
+
+%changelog
+
+%changelog
+* Mon Dec 13 2021 Yoann VALERI <yoann.valeri@cea.fr> 0.1.0
+- Add initial files for the Ganesha Request Handler Daemons

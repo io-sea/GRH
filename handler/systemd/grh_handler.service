@@ -1,0 +1,15 @@
+[Unit]
+Description=Ganesha Request Handler Rest server
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+EnvironmentFile=/etc/sysconfig/grh_handler
+ExecStart=/bin/sh -c 'GRH_DEFAULT_ETA_MS="$DEFAULT_ETA_MS" grh_handler \
+    $${HOST:+--host "$HOST"} $${PORT:+--port "$PORT"} "$CELERY_BACKEND" \
+    "$CELERY_BROKER" "$DEDUP_BACKEND" "$DEDUP_SLOT_MS"'
+
+[Install]
+WantedBy=multi-user.target

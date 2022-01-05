@@ -1,0 +1,18 @@
+[Unit]
+Description=Ganesha Request Handler Celery Service
+After=network.target
+
+[Service]
+Type=forking
+User=root
+Group=root
+RuntimeDirectory=grh_celery
+EnvironmentFile=/etc/sysconfig/grh_celery
+ExecStart=/bin/sh -c 'celery multi start $NODES \
+  -A handler.workqueue.celery.worker --pidfile="$PID_FILE" \
+  --logfile="$LOG_FILE" --loglevel="$LOG_LEVEL" \
+  --result-backend="$BACKEND" --broker="$BROKER" $EXTRA_OPTS'
+ExecStop=/bin/sh -c 'celery multi stopwait $NODES --pidfile="$PID_FILE"'
+
+[Install]
+WantedBy=multi-user.target
