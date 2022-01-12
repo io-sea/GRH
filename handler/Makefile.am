@@ -1,6 +1,8 @@
 EXTRA_DIST = handler/app.py \
              handler/__init__.py \
              handler/rest.py \
+             handler/backends/__init__.py \
+             handler/backends/dispatch.py \
              handler/deduplicationlog/__init__.py \
              handler/deduplicationlog/redis/__init__.py \
              handler/workqueue/__init__.py \

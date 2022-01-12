@@ -18,8 +18,8 @@ class CeleryWorkQueue(WorkQueue):
         app.conf.broker_url = broker
 
     def push(self, task):
-        return migrate.delay(task["file_id"], task["action"],
-                             task["backend"]).id
+        return handle.delay(task["file_id"], task["action"],
+                            task["backend"]).id
 
     def status(self, task_id):
         result = app.AsyncResult(task_id)
