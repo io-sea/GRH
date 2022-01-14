@@ -17,8 +17,7 @@ rpm: grh.spec mydist
 # this target builds SRPM
 srpm: grh.spec mydist
 	rpmbuild --define="_topdir $(RPMDIR)" -ts $(distdir).tar.gz && \
-		echo "SRPM successfully generated in $(RPMDIR)/SRPMS" && \
-		cp -f $(distdir).tar.gz $(RPMDIR)/SOURCES
+		echo "SRPM successfully generated in $(RPMDIR)/SRPMS"
 
 # this target builds all RPMS
 rpms: grh.spec mydist srpm
