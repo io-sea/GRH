@@ -51,6 +51,9 @@ STATUSES_JSON_SCHEMA = {
 # Valid actions for early validation
 VALID_ACTIONS = ["put", "get", "delete"]
 
+# Valid backends for early validation
+VALID_BACKENDS = ["phobos", "s3", "empty", "test"]
+
 TASK_STATUS = {
     TASK_ST_RUNNING: "running",
     TASK_ST_COMPLETED: "completed",
@@ -84,6 +87,11 @@ def validate_request_list(requests):
             raise BadRequest(
                 "Unsupported action: %s, choose from %s" % (rq["action"],
                                                             VALID_ACTIONS)
+            )
+        if rq["backend"] not in VALID_BACKENDS:
+            raise BadRequest(
+                "Unsupported backend: %s, choose from %s" % (rq["backend"],
+                                                            VALID_BACKENDS)
             )
 
 def validate_status_list(statuses):

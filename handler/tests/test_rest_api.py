@@ -51,9 +51,12 @@ class RestApiTest(unittest.TestCase):
     def test_create_success(self):
         """Test /requests for a valid request"""
         valid_rqs = [
-            {"file_id": "foo1", "action": "put", "backend": "blob"},
-            {"file_id": "foo2", "action": "get", "backend": "blob"},
-            {"file_id": "foo3", "action": "delete", "backend": "blob"},
+            {"file_id": "foo1", "action": "put", "backend": "s3"},
+            {"file_id": "foo2", "action": "get", "backend": "s3"},
+            {"file_id": "foo3", "action": "delete", "backend": "s3"},
+            {"file_id": "foo1", "action": "put", "backend": "phobos"},
+            {"file_id": "foo2", "action": "get", "backend": "phobos"},
+            {"file_id": "foo3", "action": "delete", "backend": "phobos"},
         ]
         resp = self.post_json('/requests', valid_rqs)
         self.assertEqual(resp.status_code, 201)
@@ -66,7 +69,7 @@ class RestApiTest(unittest.TestCase):
         #     {"request_id": "XXXX", "status": "running",
         #      "errno": None, "message": None},
         # ]
-        self.assertEqual(len(rq_resps), 3)
+        self.assertEqual(len(rq_resps), len(valid_rqs))
         for r in rq_resps:
             self.assertIn("request_id", r)
             self.assertEqual(r["status"], "running")
@@ -106,8 +109,10 @@ class RestApiTest(unittest.TestCase):
             [{"file_id": "foo", "backend": "blob"}],
             # Missing backend
             [{"file_id": "foo", "action": "put"}],
-            # Bad hint
-            [{"file_id": "foo", "action": "blob", "backend": "blob"}],
+            # Bad action
+            [{"file_id": "foo", "action": "bad_action", "backend": "s3"}],
+            # Bad backend
+            [{"file_id": "foo", "action": "put", "backend": "bad_backend"}],
         ]
 
         for body in bad_bodies:
