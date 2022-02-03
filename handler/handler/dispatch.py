@@ -27,8 +27,10 @@ Dispatcher of each requests to the backends.
 import ctypes
 from ctypes import CDLL
 from ctypes.util import find_library
+import tempfile
+import os
 
-backend_list = ["phobos", "s3", "empty", "test"]
+backend_list = ["empty"]
 backends = {}
 
 def init():
@@ -45,21 +47,44 @@ def init():
                 test_str = "test"
                 b_test_str = test_str.encode('utf-8')
                 pointer = ctypes.c_char_p(b_test_str)
-                put_res = backend_lib.put(pointer, context)
-                get_res = backend_lib.get(pointer, context)
-                delete_res = backend_lib.delete(pointer, context)
+                put_res = backend_lib.put(pointer, context, None)
+                get_res = backend_lib.get(pointer, context, None)
+                delete_res = backend_lib.delete(pointer, context, None)
             except Exception as err:
-                raise NotImplementedError("Not supported yet ! Err = " +
-                                          str(err))
+                raise RuntimeError("95 Not supported yet ! Err = " + str(err))
 
 def dispatch(file_id, action, backend, backend_libs):
-    raise NotImplementedError("Not supported yet !")
+    with open("/tmp/blob_handler_dispatch.txt", "a") as f:
+        f.write("in dispatch\n")
+        f.write("file_id = " + str(file_id) + "\n")
+        f.write("action = " + str(action) + "\n")
+        f.write("backend = " + str(backend) + "\n")
+
+    if backend not in backend_list:
+        raise RuntimeError("95 Not supported yet !")
 
     file_id_ptr = ctypes.c_char_p(file_id.encode('utf-8'))
 
+    libbackend_name = find_library(backend)
+    backend_lib = CDLL(libbackend_name)
+
+    log_fd, log_path = tempfile.mkstemp()
+    log_path_ptr = ctypes.c_char_p(log_path.encode('utf-8'))
+
     if action == "put":
-        backend_libs[backend].put(file_id_ptr)
+        rc = backend_lib.put(file_id_ptr, None, log_path_ptr)
     elif action == "get":
-        backend_libs[backend].get(file_id_ptr)
+        rc = backend_lib.get(file_id_ptr, None, log_path_ptr)
     elif action == "delete":
-        backend_libs[backend].delete(file_id_ptr)
+        rc = backend_lib.delete(file_id_ptr, None, log_path_ptr)
+
+    if rc is not 0:
+        os.fsync(log_fd)
+        with open(log_path, "r") as logger:
+            full_log = logger.read()
+
+    os.close(log_fd)
+    os.remove(log_path)
+
+    if rc is not 0:
+        raise RuntimeError(str(rc) + " " + full_log)

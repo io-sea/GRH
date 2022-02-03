@@ -3,8 +3,8 @@
 
 void* init(void);
 
-int put(char *file_id, void *context);
-int get(char *file_id, void *context);
-int delete(char *file_id, void *context);
+int put(char *file_id, void *context, char *log_file);
+int get(char *file_id, void *context, char *log_file);
+int delete(char *file_id, void *context, char *log_file);
 
 #endif  // __EMPTY_H__

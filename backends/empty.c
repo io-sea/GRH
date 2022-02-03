@@ -22,7 +22,7 @@ void* init()
     return NULL;
 }
 
-int put(char *file_id, void* context)
+int put(char *file_id, void* context, char *log_file)
 {
     FILE *fp = fopen("/tmp/grh_log.txt", "a");
     int rc;
@@ -36,10 +36,17 @@ int put(char *file_id, void* context)
     if (rc)
         return -errno;
 
+    if (log_file != NULL) {
+        FILE *logger = fopen(log_file, "w");
+
+        fprintf(logger, "Not implemented yet !\n");
+        fclose(logger);
+    }
+
     return -ENOTSUP;
 }
 
-int get(char *file_id, void* context)
+int get(char *file_id, void* context, char *log_file)
 {
     FILE *fp = fopen("/tmp/grh_log.txt", "a");
     int rc;
@@ -53,10 +60,17 @@ int get(char *file_id, void* context)
     if (rc)
         return -errno;
 
+    if (log_file != NULL) {
+        FILE *logger = fopen(log_file, "w");
+
+        fprintf(logger, "Not implemented yet !\n");
+        fclose(logger);
+    }
+
     return -ENOTSUP;
 }
 
-int delete(char *file_id, void* context)
+int delete(char *file_id, void* context, char *log_file)
 {
     FILE *fp = fopen("/tmp/grh_log.txt", "a");
     int rc;
@@ -69,6 +83,13 @@ int delete(char *file_id, void* context)
     rc = fclose(fp);
     if (rc)
         return -errno;
+
+    if (log_file != NULL) {
+        FILE *logger = fopen(log_file, "w");
+
+        fprintf(logger, "Not implemented yet !\n");
+        fclose(logger);
+    }
 
     return -ENOTSUP;
 }

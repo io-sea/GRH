@@ -52,7 +52,7 @@ STATUSES_JSON_SCHEMA = {
 VALID_ACTIONS = ["put", "get", "delete"]
 
 # Valid backends for early validation
-VALID_BACKENDS = ["phobos", "s3", "empty", "test"]
+VALID_BACKENDS = ["phobos", "s3", "empty"]
 
 TASK_STATUS = {
     TASK_ST_RUNNING: "running",

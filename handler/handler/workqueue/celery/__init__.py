@@ -4,8 +4,6 @@ from math import ceil
 from redis import from_url
 from time import time
 
-from subprocess import CalledProcessError
-
 from .. import WorkQueue, TASK_ST_RUNNING, TASK_ST_COMPLETED, RequestError
 from .worker import app, handle
 
@@ -23,6 +21,7 @@ class CeleryWorkQueue(WorkQueue):
 
     def status(self, task_id):
         result = app.AsyncResult(task_id)
+
         if not result.ready():
             return TASK_ST_RUNNING
 
@@ -30,7 +29,9 @@ class CeleryWorkQueue(WorkQueue):
             return TASK_ST_COMPLETED
 
         result = result.result
-        assert isinstance(result, CalledProcessError), \
-                "expected %s to be a CalledProcessError, but it is instead a %s" % \
-                (result, result.__class__.__name__)
-        raise RequestError(result.returncode, result.output)
+        assert isinstance(result, RuntimeError), \
+            "expected %s to be a RuntimeError, but it is instead a %s" % \
+            (result, result.__class__.__name__)
+
+        errcode, errmsg = str(result).split(' ', 1)
+        raise RequestError(errcode, errmsg)
