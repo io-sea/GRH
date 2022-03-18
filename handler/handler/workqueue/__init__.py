@@ -27,8 +27,9 @@ class WorkQueue(object):
     serializable with `pickle` or `json`.
     """
 
-    def push(self, task):
-        """Push the task into the queue.
+    def push(self, task, backends_ctx):
+        """Push the task into the queue, alongside a list of backends contexts
+        to use.
 
         Return a task_id as a string of 64 characters maximum"""
         raise NotImplementedError()

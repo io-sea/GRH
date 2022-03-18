@@ -10,7 +10,7 @@ class DummyQueue(WorkQueue):
     def __init__(self):
         super(DummyQueue, self).__init__()
 
-    def push(self, task):
+    def push(self, task, backends_ctx):
         task_id = uuid.uuid4()
         return task_id.hex
 

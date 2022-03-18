@@ -5,7 +5,7 @@ from redis import from_url
 from time import time
 
 from .. import WorkQueue, TASK_ST_RUNNING, TASK_ST_COMPLETED, RequestError
-from .worker import app, handle
+from .worker import app, dispatch
 
 class CeleryWorkQueue(WorkQueue):
     """This work queue defers the task to celery_migrator app"""
@@ -15,9 +15,9 @@ class CeleryWorkQueue(WorkQueue):
         app.conf.result_backend = backend
         app.conf.broker_url = broker
 
-    def push(self, task):
-        return handle.delay(task["file_id"], task["action"],
-                            task["backend"]).id
+    def push(self, task, backends_ctx):
+        return dispatch.delay(task["file_id"], task["action"],
+                              task["backend"], backends_ctx).id
 
     def status(self, task_id):
         result = app.AsyncResult(task_id)

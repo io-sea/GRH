@@ -2,13 +2,14 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
 #include "empty.h"
 
-void* init()
+int init(char *context)
 {
     FILE *fp = fopen("/tmp/grh_log.txt", "w");
     int rc;
@@ -17,12 +18,14 @@ void* init()
 
     rc = fclose(fp);
     if (rc)
-        return NULL;
+        return -errno;
 
-    return NULL;
+    strcpy(context, "hello\n");
+
+    return 0;
 }
 
-int put(char *file_id, void* context, char *log_file)
+int put(char *file_id, char* context, char *log_file)
 {
     FILE *fp = fopen("/tmp/grh_log.txt", "a");
     int rc;
@@ -30,7 +33,7 @@ int put(char *file_id, void* context, char *log_file)
     if (context == NULL)
         fprintf(fp, "Put function of the empty lib, no context\n");
     else
-        fprintf(fp, "Put function of the empty lib\n");
+        fprintf(fp, "Put function of the empty lib, context = '%s'\n", context);
 
     rc = fclose(fp);
     if (rc)
@@ -46,7 +49,7 @@ int put(char *file_id, void* context, char *log_file)
     return -ENOTSUP;
 }
 
-int get(char *file_id, void* context, char *log_file)
+int get(char *file_id, char* context, char *log_file)
 {
     FILE *fp = fopen("/tmp/grh_log.txt", "a");
     int rc;
@@ -54,7 +57,7 @@ int get(char *file_id, void* context, char *log_file)
     if (context == NULL)
         fprintf(fp, "Get function of the empty lib, no context\n");
     else
-        fprintf(fp, "Get function of the empty lib\n");
+        fprintf(fp, "Get function of the empty lib, context = '%s'\n", context);
 
     rc = fclose(fp);
     if (rc)
@@ -70,7 +73,7 @@ int get(char *file_id, void* context, char *log_file)
     return -ENOTSUP;
 }
 
-int delete(char *file_id, void* context, char *log_file)
+int delete(char *file_id, char* context, char *log_file)
 {
     FILE *fp = fopen("/tmp/grh_log.txt", "a");
     int rc;
@@ -78,7 +81,8 @@ int delete(char *file_id, void* context, char *log_file)
     if (context == NULL)
         fprintf(fp, "Delete function of the empty lib, no context\n");
     else
-        fprintf(fp, "Delete function of the empty lib\n");
+        fprintf(fp, "Delete function of the empty lib, context = '%s'\n",
+                context);
 
     rc = fclose(fp);
     if (rc)

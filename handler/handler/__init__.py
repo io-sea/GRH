@@ -22,13 +22,70 @@
 
 """Utilities to handle a request"""
 
-from .dispatch import dispatch, init
+from ctypes import CDLL, create_string_buffer
+from ctypes.util import find_library
+import os
+import tempfile
 
-def handle(file_id, action, backend):
-    with open("/tmp/blob_handle.txt", "a") as f:
-        f.write("file_id = " + file_id + "\n")
-        f.write("action = " + action + "\n")
-        f.write("backend = " + backend + "\n")
-        init()
-        f.write("end\n")
-        dispatch(file_id, action, backend, None)
+def init(backend_list):
+    backends = {}
+    for backend in backend_list:
+        libbackend_name = find_library(backend)
+        if libbackend_name is None:
+            continue
+
+        try:
+            backend_lib = CDLL(libbackend_name)
+        except Exception as err:
+            raise RuntimeError("95 Not supported yet ! Err = " +
+                               os.strerror(err))
+
+        context_str = create_string_buffer(16)
+        rc = backend_lib.init(context_str)
+        if rc is not 0:
+            raise RuntimeError("Initialisation failed, init returned '" +
+                               os.strerror(-rc) + "'")
+
+        backends[backend] = context_str.value.decode("utf-8")
+
+    return backends
+
+def dispatch(file_id, action, backend, backends_ctx):
+    with open("/tmp/blob_handler_dispatch.txt", "a") as f:
+        f.write("in dispatch\n")
+        f.write("backends_ctx = " + str(backends_ctx) + "\n")
+        f.write("file_id = " + str(file_id) + "\n")
+        f.write("action = " + str(action) + "\n")
+        f.write("backend = " + str(backend) + "\n")
+
+    if backend not in backends_ctx:
+        raise RuntimeError("95 Not supported yet !")
+
+    file_id_ptr = ctypes.c_char_p(file_id.encode('utf-8'))
+
+    libbackend_name = find_library(backend)
+    backend_lib = CDLL(libbackend_name)
+
+    log_fd, log_path = tempfile.mkstemp()
+    log_path_ptr = ctypes.c_char_p(log_path.encode('utf-8'))
+
+    b_ctx = backends_ctx[backend].encode('utf-8')
+    ptr_ctx = ctypes.c_char_p(b_ctx)
+
+    if action == "put":
+        rc = backend_lib.put(file_id_ptr, ptr_ctx, log_path_ptr)
+    elif action == "get":
+        rc = backend_lib.get(file_id_ptr, ptr_ctx, log_path_ptr)
+    elif action == "delete":
+        rc = backend_lib.delete(file_id_ptr, ptr_ctx, log_path_ptr)
+
+    if rc is not 0:
+        os.fsync(log_fd)
+        with open(log_path, "r") as logger:
+            full_log = logger.read()
+
+    os.close(log_fd)
+    os.remove(log_path)
+
+    if rc is not 0:
+        raise RuntimeError(str(rc) + " " + full_log)

@@ -1,5 +1,4 @@
 EXTRA_DIST = handler/app.py \
-             handler/dispatch.py \
              handler/__init__.py \
              handler/rest.py \
              handler/deduplicationlog/__init__.py \

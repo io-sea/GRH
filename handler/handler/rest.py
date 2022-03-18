@@ -8,6 +8,7 @@ from flask import Flask, Response, json, request, current_app
 from werkzeug.exceptions import BadRequest
 
 from .workqueue import TASK_ST_RUNNING, TASK_ST_COMPLETED, RequestError
+from . import init
 
 from os import environ
 
@@ -58,6 +59,11 @@ TASK_STATUS = {
     TASK_ST_RUNNING: "running",
     TASK_ST_COMPLETED: "completed",
 }
+
+# Currently, only "empty" is implemented, but the goal is to use VALID_BACKENDS
+# in place of this list
+backend_list = ["empty"]
+backends_ctx = {}
 
 def validate_request_list(requests):
     """Validates a request list and raises a BadRequest error if the list
@@ -160,7 +166,7 @@ def create_request():
             request_id = current_app.deduplication_log.get_task(rq)
 
         if not request_id:
-            request_id = current_app.work_queue.push(rq)
+            request_id = current_app.work_queue.push(rq, backends_ctx)
             if current_app.deduplication_log:
                 current_app.deduplication_log.register_task(rq, request_id)
 
@@ -240,4 +246,7 @@ def get_app(work_queue, deduplication_log=None):
     handler_app.add_url_rule(
         '/requests/status', 'status', get_status, methods=['POST'],
     )
+
+    backends_ctx.update(init(backend_list))
+
     return handler_app

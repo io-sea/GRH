@@ -2,7 +2,7 @@
 
 from celery import Celery
 
-from ... import handle
+from ... import dispatch
 
 app = Celery('celery_handler')
-handle = app.task(handle)
+dispatch = app.task(dispatch)
