@@ -22,7 +22,7 @@
 
 """Utilities to handle a request"""
 
-from ctypes import CDLL, create_string_buffer
+from ctypes import CDLL, create_string_buffer, c_char_p
 from ctypes.util import find_library
 import os
 import tempfile
@@ -61,16 +61,16 @@ def dispatch(file_id, action, backend, backends_ctx):
     if backend not in backends_ctx:
         raise RuntimeError("95 Not supported yet !")
 
-    file_id_ptr = ctypes.c_char_p(file_id.encode('utf-8'))
+    file_id_ptr = c_char_p(file_id.encode('utf-8'))
 
     libbackend_name = find_library(backend)
     backend_lib = CDLL(libbackend_name)
 
     log_fd, log_path = tempfile.mkstemp()
-    log_path_ptr = ctypes.c_char_p(log_path.encode('utf-8'))
+    log_path_ptr = c_char_p(log_path.encode('utf-8'))
 
     b_ctx = backends_ctx[backend].encode('utf-8')
-    ptr_ctx = ctypes.c_char_p(b_ctx)
+    ptr_ctx = c_char_p(b_ctx)
 
     if action == "put":
         rc = backend_lib.put(file_id_ptr, ptr_ctx, log_path_ptr)

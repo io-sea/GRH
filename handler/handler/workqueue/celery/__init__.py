@@ -34,4 +34,4 @@ class CeleryWorkQueue(WorkQueue):
             (result, result.__class__.__name__)
 
         errcode, errmsg = str(result).split(' ', 1)
-        raise RequestError(errcode, errmsg)
+        raise RequestError(int(errcode), errmsg)

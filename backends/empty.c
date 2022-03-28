@@ -25,7 +25,7 @@ int init(char *context)
     return 0;
 }
 
-int put(char *file_id, char* context, char *log_file)
+int put(const char *file_id, const char* context, const char *log_file)
 {
     FILE *fp = fopen("/tmp/grh_log.txt", "a");
     int rc;
@@ -49,7 +49,7 @@ int put(char *file_id, char* context, char *log_file)
     return -ENOTSUP;
 }
 
-int get(char *file_id, char* context, char *log_file)
+int get(const char *file_id, const char* context, const char *log_file)
 {
     FILE *fp = fopen("/tmp/grh_log.txt", "a");
     int rc;
@@ -73,7 +73,7 @@ int get(char *file_id, char* context, char *log_file)
     return -ENOTSUP;
 }
 
-int delete(char *file_id, char* context, char *log_file)
+int delete(const char *file_id, const char* context, const char *log_file)
 {
     FILE *fp = fopen("/tmp/grh_log.txt", "a");
     int rc;
