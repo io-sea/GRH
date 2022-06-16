@@ -62,7 +62,7 @@ TASK_STATUS = {
 
 # Currently, only "empty" is implemented, but the goal is to use VALID_BACKENDS
 # in place of this list
-backend_list = ["empty"]
+backend_list = ["empty", "phobos"]
 backends_ctx = {}
 
 def validate_request_list(requests):

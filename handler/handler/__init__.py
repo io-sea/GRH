@@ -24,6 +24,7 @@
 
 from ctypes import CDLL, create_string_buffer, c_char_p
 from ctypes.util import find_library
+import errno
 import os
 import tempfile
 
@@ -37,14 +38,15 @@ def init(backend_list):
         try:
             backend_lib = CDLL(libbackend_name)
         except Exception as err:
-            raise RuntimeError("95 Not supported yet ! Err = " +
-                               os.strerror(err))
+            raise RuntimeError(str(errno.ELIBACC) + " Failed to open lib " +
+                               str(libbackend_name) + "! Err = " +
+                               os.strerror(errno.ELIBACC))
 
         context_str = create_string_buffer(16)
         rc = backend_lib.init(context_str)
         if rc is not 0:
-            raise RuntimeError("Initialisation failed, init returned '" +
-                               os.strerror(-rc) + "'")
+            raise RuntimeError(str(-rc) + "Initialisation failed, init " +
+                               "returned '" + os.strerror(-rc) + "'")
 
         backends[backend] = context_str.value.decode("utf-8")
 
