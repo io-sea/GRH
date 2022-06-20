@@ -31,7 +31,7 @@ import tempfile
 def init(backend_list):
     backends = {}
     for backend in backend_list:
-        libbackend_name = find_library(backend)
+        libbackend_name = find_library("grh_" + backend)
         if libbackend_name is None:
             continue
 
@@ -65,7 +65,7 @@ def dispatch(file_id, action, backend, backends_ctx):
 
     file_id_ptr = c_char_p(file_id.encode('utf-8'))
 
-    libbackend_name = find_library(backend)
+    libbackend_name = find_library("grh_" + backend)
     backend_lib = CDLL(libbackend_name)
 
     log_fd, log_path = tempfile.mkstemp()
