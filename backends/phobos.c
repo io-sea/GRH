@@ -112,7 +112,7 @@ static int open_xfer_alloc_oid(struct pho_xfer_desc *xfer, const char *file_id,
     }
 
     xfer->xd_params.put.family = PHO_RSC_DIR;
-    xfer->xd_objid = file_id;
+    xfer->xd_objid = strdup(file_id);
     if (!xfer->xd_objid) {
         write_log(log_file, "Couldn't allocate oid '%s'\n", file_id);
         rc = -ENOMEM;
@@ -167,6 +167,7 @@ int put(const char *file_id, const char *context, const char *log_file)
 clean:
     xfer_desc_close_fd(&xfer);
     pho_xfer_desc_clean(&xfer);
+    free(xfer.xd_objid);
 
 out:
     return rc;
@@ -193,6 +194,7 @@ int get(const char *file_id, const char *context, const char *log_file)
 clean:
     xfer_desc_close_fd(&xfer);
     pho_xfer_desc_clean(&xfer);
+    free(xfer.xd_objid);
 
 out:
     return rc;
@@ -205,7 +207,7 @@ int delete(const char *file_id, const char *context, const char *log_file)
 
     (void) context;
 
-    xfer.xd_objid = file_id;
+    xfer.xd_objid = strdup(file_id);
     if (!xfer.xd_objid) {
         write_log(log_file, "Couldn't allocate oid '%s'\n", file_id);
         rc = -ENOMEM;
@@ -216,9 +218,10 @@ int delete(const char *file_id, const char *context, const char *log_file)
     if (rc) {
         write_log(log_file, "Failed to delete file '%s' with oid '%s'",
                   file_id, xfer.xd_objid);
-        goto clean;
+        goto out;
     }
 
 out:
+    free(xfer.xd_objid);
     return rc;
 }
