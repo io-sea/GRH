@@ -11,7 +11,7 @@ include(CheckIncludeFiles)
 include(CheckLibraryExists)
 
 # EMPTY LIBRARY
-add_library(grh_empty SHARED empty.h empty.c)
+add_library(grh_empty SHARED backend.h empty.c)
 install(TARGETS grh_empty DESTINATION lib64)
 
 # PHOBOS LIBRARY
@@ -30,10 +30,10 @@ check_library_exists(
 	)
 
 if((NOT HAVE_PHOBOS_STORE) OR (NOT HAVE_PHOBOS_STORE_H))
-      message(FATAL_ERROR "Cannot find Phobos store")
+	message(FATAL_ERROR "Cannot find Phobos store")
+else()
+	add_library(grh_phobos SHARED backend.h phobos.c)
+
+	target_link_libraries(grh_phobos PkgConfig::glib PkgConfig::json phobos_store)
+	install(TARGETS grh_phobos DESTINATION lib64)
 endif((NOT HAVE_PHOBOS_STORE) OR (NOT HAVE_PHOBOS_STORE_H))
-
-add_library(grh_phobos SHARED phobos.h phobos.c)
-
-target_link_libraries(grh_phobos PkgConfig::glib PkgConfig::json phobos_store)
-install(TARGETS grh_phobos DESTINATION lib64)

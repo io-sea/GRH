@@ -1,15 +1,11 @@
 #define _GNU_SOURCE
 
-#include <errno.h>
 #include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 
-#include "phobos.h"
+#include <phobos_store.h>
+
+#include "backend.h"
 
 /**
  * Return the open flags corresponding to the xfer flags
@@ -73,32 +69,6 @@ static int xfer_desc_close_fd(struct pho_xfer_desc *xfer)
     return 0;
 }
 
-static __attribute__ ((format (printf, 2, 3)))
-void write_log(const char *log_file, const char *fmt, ...)
-{
-    FILE *logger;
-    va_list args;
-    int rc;
-
-    if (log_file == NULL)
-        return;
-
-    va_start(args, fmt);
-
-    logger = fopen(log_file, "w");
-    if (!logger)
-        goto out;
-
-    rc = vfprintf(logger, fmt, args);
-    if (rc < 0)
-        goto out;
-
-    fclose(logger);
-
-out:
-    va_end(args);
-}
-
 static int open_xfer_alloc_oid(struct pho_xfer_desc *xfer, const char *file_id,
                                enum pho_xfer_op op, const char *log_file)
 {
@@ -131,16 +101,7 @@ out:
 
 int init(char *context)
 {
-    FILE *fp = fopen("/tmp/grh_log.txt", "w");
-    int rc;
-
-    (void) context;
-
-    fprintf(fp, "Init function of the phobos lib\n");
-
-    rc = fclose(fp);
-    if (rc)
-        return -errno;
+    write_log("/tmp/grh_log.txt", "Init function of the phobos lib\n");
 
     return 0;
 }

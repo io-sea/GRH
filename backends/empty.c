@@ -1,25 +1,11 @@
 #include <errno.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 
-#include "empty.h"
+#include "backend.h"
 
 int init(char *context)
 {
-    FILE *fp = fopen("/tmp/grh_log.txt", "w");
-    int rc;
-
-    fprintf(fp, "Init function of the empty lib\n");
-
-    rc = fclose(fp);
-    if (rc)
-        return -errno;
-
+    write_log("/tmp/grh_log.txt", "Init function of the empty lib\n");
     strcpy(context, "hello\n");
 
     return 0;
@@ -27,73 +13,43 @@ int init(char *context)
 
 int put(const char *file_id, const char* context, const char *log_file)
 {
-    FILE *fp = fopen("/tmp/grh_log.txt", "a");
-    int rc;
-
     if (context == NULL)
-        fprintf(fp, "Put function of the empty lib, no context\n");
+        write_log("/tmp/grh_log.txt",
+                  "Put function of the empty lib, no context\n");
     else
-        fprintf(fp, "Put function of the empty lib, context = '%s'\n", context);
+        write_log("/tmp/grh_log.txt",
+                  "Put function of the empty lib, context = '%s'\n", context);
 
-    rc = fclose(fp);
-    if (rc)
-        return -errno;
-
-    if (log_file != NULL) {
-        FILE *logger = fopen(log_file, "w");
-
-        fprintf(logger, "Not implemented yet !\n");
-        fclose(logger);
-    }
+    write_log(log_file, "Not implemented yet !\n");
 
     return -ENOTSUP;
 }
 
 int get(const char *file_id, const char* context, const char *log_file)
 {
-    FILE *fp = fopen("/tmp/grh_log.txt", "a");
-    int rc;
-
     if (context == NULL)
-        fprintf(fp, "Get function of the empty lib, no context\n");
+        write_log("/tmp/grh_log.txt",
+                  "Get function of the empty lib, no context\n");
     else
-        fprintf(fp, "Get function of the empty lib, context = '%s'\n", context);
+        write_log("/tmp/grh_log.txt",
+                  "Get function of the empty lib, context = '%s'\n", context);
 
-    rc = fclose(fp);
-    if (rc)
-        return -errno;
-
-    if (log_file != NULL) {
-        FILE *logger = fopen(log_file, "w");
-
-        fprintf(logger, "Not implemented yet !\n");
-        fclose(logger);
-    }
+    write_log(log_file, "Not implemented yet !\n");
 
     return -ENOTSUP;
 }
 
 int delete(const char *file_id, const char* context, const char *log_file)
 {
-    FILE *fp = fopen("/tmp/grh_log.txt", "a");
-    int rc;
-
     if (context == NULL)
-        fprintf(fp, "Delete function of the empty lib, no context\n");
+        write_log("/tmp/grh_log.txt",
+                  "Delete function of the empty lib, no context\n");
     else
-        fprintf(fp, "Delete function of the empty lib, context = '%s'\n",
-                context);
+        write_log("/tmp/grh_log.txt",
+                  "Delete function of the empty lib, context = '%s'\n",
+                  context);
 
-    rc = fclose(fp);
-    if (rc)
-        return -errno;
-
-    if (log_file != NULL) {
-        FILE *logger = fopen(log_file, "w");
-
-        fprintf(logger, "Not implemented yet !\n");
-        fclose(logger);
-    }
+    write_log(log_file, "Not implemented yet !\n");
 
     return -ENOTSUP;
 }
