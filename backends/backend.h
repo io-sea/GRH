@@ -31,10 +31,10 @@ out:
     va_end(args);
 }
 
-int init(char *context);
+int grh_init(char *context);
 
-int put(const char *file_id, const char *context, const char *log_file);
-int get(const char *file_id, const char *context, const char *log_file);
-int delete(const char *file_id, const char *context, const char *log_file);
+int grh_put(const char *file_id, const char *context, const char *log_file);
+int grh_get(const char *file_id, const char *context, const char *log_file);
+int grh_delete(const char *file_id, const char *context, const char *log_file);
 
 #endif  // __BACKEND_H__

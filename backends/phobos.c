@@ -99,14 +99,14 @@ out:
     return rc;
 }
 
-int init(char *context)
+int grh_init(char *context)
 {
     write_log("/tmp/grh_log.txt", "Init function of the phobos lib\n");
 
     return 0;
 }
 
-int put(const char *file_id, const char *context, const char *log_file)
+int grh_put(const char *file_id, const char *context, const char *log_file)
 {
     struct pho_xfer_desc xfer = {0};
     int rc;
@@ -134,7 +134,7 @@ out:
     return rc;
 }
 
-int get(const char *file_id, const char *context, const char *log_file)
+int grh_get(const char *file_id, const char *context, const char *log_file)
 {
     struct pho_xfer_desc xfer = {0};
     int rc;
@@ -161,7 +161,7 @@ out:
     return rc;
 }
 
-int delete(const char *file_id, const char *context, const char *log_file)
+int grh_delete(const char *file_id, const char *context, const char *log_file)
 {
     struct pho_xfer_desc xfer = {0};
     int rc;

@@ -3,7 +3,7 @@
 
 #include "backend.h"
 
-int init(char *context)
+int grh_init(char *context)
 {
     write_log("/tmp/grh_log.txt", "Init function of the empty lib\n");
     strcpy(context, "hello\n");
@@ -11,7 +11,7 @@ int init(char *context)
     return 0;
 }
 
-int put(const char *file_id, const char* context, const char *log_file)
+int grh_put(const char *file_id, const char* context, const char *log_file)
 {
     if (context == NULL)
         write_log("/tmp/grh_log.txt",
@@ -25,7 +25,7 @@ int put(const char *file_id, const char* context, const char *log_file)
     return -ENOTSUP;
 }
 
-int get(const char *file_id, const char* context, const char *log_file)
+int grh_get(const char *file_id, const char* context, const char *log_file)
 {
     if (context == NULL)
         write_log("/tmp/grh_log.txt",
@@ -39,7 +39,7 @@ int get(const char *file_id, const char* context, const char *log_file)
     return -ENOTSUP;
 }
 
-int delete(const char *file_id, const char* context, const char *log_file)
+int grh_delete(const char *file_id, const char* context, const char *log_file)
 {
     if (context == NULL)
         write_log("/tmp/grh_log.txt",

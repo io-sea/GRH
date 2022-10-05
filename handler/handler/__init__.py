@@ -43,7 +43,7 @@ def init(backend_list):
                                os.strerror(errno.ELIBACC))
 
         context_str = create_string_buffer(16)
-        rc = backend_lib.init(context_str)
+        rc = backend_lib.grh_init(context_str)
         if rc is not 0:
             raise RuntimeError(str(-rc) + "Initialisation failed, init " +
                                "returned '" + os.strerror(-rc) + "'")
@@ -75,11 +75,11 @@ def dispatch(file_id, action, backend, backends_ctx):
     ptr_ctx = c_char_p(b_ctx)
 
     if action == "put":
-        rc = backend_lib.put(file_id_ptr, ptr_ctx, log_path_ptr)
+        rc = backend_lib.grh_put(file_id_ptr, ptr_ctx, log_path_ptr)
     elif action == "get":
-        rc = backend_lib.get(file_id_ptr, ptr_ctx, log_path_ptr)
+        rc = backend_lib.grh_get(file_id_ptr, ptr_ctx, log_path_ptr)
     elif action == "delete":
-        rc = backend_lib.delete(file_id_ptr, ptr_ctx, log_path_ptr)
+        rc = backend_lib.grh_delete(file_id_ptr, ptr_ctx, log_path_ptr)
 
     if rc is not 0:
         os.fsync(log_fd)
