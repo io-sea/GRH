@@ -40,7 +40,7 @@ class RedisDeduplicationLogTest(TestCase):
 
     def test_dedup_two_consecutive_similar_requests(self):
         request_1 = [
-            {"file_id": "file", "action": "put", "backend": "s3"},
+            {"file_id": "file", "action": "put", "backend": "empty"},
         ]
         request_2 = request_1
         resp_1 = self.post_json('/requests', request_1)
@@ -58,7 +58,7 @@ class RedisDeduplicationLogTest(TestCase):
 
     def test_dedup_two_distant_similar_requests(self):
         request_1 = [
-            {"file_id": "file_bis", "action": "put", "backend": "s3"},
+            {"file_id": "file_bis", "action": "put", "backend": "empty"},
         ]
         request_2 = request_1
         resp_1 = self.post_json('/requests', request_1)

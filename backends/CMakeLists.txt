@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6.4)
 cmake_policy(SET CMP0017 NEW)
 
-PROJECT(grh_backends C)
+project(grh_backends LANGUAGES C CXX)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I${CMAKE_SOURCE_DIR}/include -fPIC -g")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror")
@@ -37,3 +37,15 @@ else()
 	target_link_libraries(grh_phobos PkgConfig::glib PkgConfig::json phobos_store)
 	install(TARGETS grh_phobos DESTINATION lib64)
 endif((NOT HAVE_PHOBOS_STORE) OR (NOT HAVE_PHOBOS_STORE_H))
+
+# HESTIA LIBRARY
+check_include_files("hestia.h" HAVE_HESTIA_H LANGUAGE CXX)
+
+if((NOT HAVE_HESTIA_H))
+	message(FATAL_ERROR "Cannot find Hestia")
+else()
+	add_library(grh_hestia SHARED backend.h hestia.cpp)
+
+	target_link_libraries(grh_hestia hestia_lib stdc++fs)
+	install(TARGETS grh_hestia DESTINATION lib64)
+endif((NOT HAVE_HESTIA_H))

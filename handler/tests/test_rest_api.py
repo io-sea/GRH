@@ -51,9 +51,9 @@ class RestApiTest(unittest.TestCase):
     def test_create_success(self):
         """Test /requests for a valid request"""
         valid_rqs = [
-            {"file_id": "foo1", "action": "put", "backend": "s3"},
-            {"file_id": "foo2", "action": "get", "backend": "s3"},
-            {"file_id": "foo3", "action": "delete", "backend": "s3"},
+            {"file_id": "foo1", "action": "put", "backend": "empty"},
+            {"file_id": "foo2", "action": "get", "backend": "empty"},
+            {"file_id": "foo3", "action": "delete", "backend": "empty"},
             {"file_id": "foo1", "action": "put", "backend": "phobos"},
             {"file_id": "foo2", "action": "get", "backend": "phobos"},
             {"file_id": "foo3", "action": "delete", "backend": "phobos"},
@@ -110,7 +110,7 @@ class RestApiTest(unittest.TestCase):
             # Missing backend
             [{"file_id": "foo", "action": "put"}],
             # Bad action
-            [{"file_id": "foo", "action": "bad_action", "backend": "s3"}],
+            [{"file_id": "foo", "action": "bad_action", "backend": "empty"}],
             # Bad backend
             [{"file_id": "foo", "action": "put", "backend": "bad_backend"}],
         ]

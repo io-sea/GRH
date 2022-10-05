@@ -8,6 +8,7 @@
 __attribute__ ((format (printf, 2, 3)))
 void write_log(const char *log_file, const char *fmt, ...)
 {
+    int save_errno = errno;
     FILE *logger;
     va_list args;
     int rc;
@@ -29,12 +30,21 @@ void write_log(const char *log_file, const char *fmt, ...)
 
 out:
     va_end(args);
+    errno = save_errno;
 }
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 int grh_init(char *context);
 
 int grh_put(const char *file_id, const char *context, const char *log_file);
 int grh_get(const char *file_id, const char *context, const char *log_file);
 int grh_delete(const char *file_id, const char *context, const char *log_file);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // __BACKEND_H__
