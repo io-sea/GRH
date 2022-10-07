@@ -1,3 +1,4 @@
+#include <climits>
 #include <fstream>
 
 #include "backend.h"
@@ -32,6 +33,7 @@ int grh_put(const char *file_id, const char *context, const char *log_file)
     struct hestia::hsm_uint oid;
     struct hestia::hsm_obj obj;
     std::vector<char> buffer;
+    std::string size_attr;
     std::streampos size;
     int rc = 0;
 
@@ -76,14 +78,88 @@ int grh_put(const char *file_id, const char *context, const char *log_file)
         write_log(log_file, "Failed to put file '%s' with oid '%ld'",
                   file_id, oid.lower);
 
+    size_attr = "{\"size\": " + std::to_string(size) + "}";
+    rc = hestia::set_attrs(oid, size_attr.c_str());
+    if (rc < 0)
+        write_log(log_file, "Failed to set size attr '%s'", size_attr);
+
 out:
     input_file.close();
     return rc;
 }
 
+static int attr2uint(const struct hestia::hsm_uint oid, const char *attr,
+                     std::size_t *value)
+{
+    std::string str_attr = hestia::get_attrs(oid, attr);
+    std::size_t found;
+    int save_errno;
+    int rc = 0;
+
+    if (str_attr.empty())
+        return -ENODATA;
+
+    found = str_attr.find(":") + 1;
+    str_attr = str_attr.substr(found);
+
+    save_errno = errno;
+    errno = 0;
+    *value = std::stoull(str_attr, NULL, 0);
+    if (errno && ULLONG_MAX)
+        rc = errno;
+
+    errno = save_errno;
+
+    return rc;
+}
+
 int grh_get(const char *file_id, const char *context, const char *log_file)
 {
-    return -ENOTSUP;
+    struct hestia::hsm_uint oid;
+    struct hestia::hsm_obj obj;
+    std::ofstream output_file;
+    std::vector<char> buffer;
+    std::uint8_t tier;
+    std::size_t size;
+    int rc = 0;
+
+    (void)context;
+
+    oid.lower = charsum(file_id);
+    hestia::create_object(oid, obj);
+
+    rc = attr2uint(oid, "size", &size);
+    if (rc) {
+        write_log(log_file, "Failed to retrieve size of file '%s'\n", file_id);
+        return rc;
+    }
+
+    rc = attr2uint(oid, "tier", (std::size_t*)&tier);
+    if (rc) {
+        write_log(log_file, "Failed to retrieve tier of file '%s'\n", file_id);
+        return rc;
+    }
+
+    buffer.reserve(size);
+    rc = hestia::get(oid, &obj, buffer.data(), 0, size, tier, 0);
+    if (rc < 0)
+        write_log(log_file, "Failed to get file '%s' with oid '%ld'",
+                  file_id, oid.lower);
+
+    output_file.open(file_id, std::ofstream::binary);
+    if (!output_file) {
+        write_log(log_file, "Failed to open '%s', err: '%s'\n",
+                  file_id, strerror(errno));
+        return -errno;
+    }
+
+    if (!output_file.write(&buffer[0], size)) {
+        write_log(log_file, "Failed to write content to '%s'\n", file_id);
+        rc = -errno;
+    }
+
+    output_file.close();
+    return rc;
 }
 
 int grh_delete(const char *file_id, const char *context, const char *log_file)
