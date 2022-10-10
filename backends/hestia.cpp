@@ -164,5 +164,13 @@ int grh_get(const char *file_id, const char *context, const char *log_file)
 
 int grh_delete(const char *file_id, const char *context, const char *log_file)
 {
-    return -ENOTSUP;
+    struct hestia::hsm_uint oid(charsum(file_id));
+    int rc;
+
+    rc = hestia::remove(oid);
+    if (rc < 0)
+        write_log(log_file, "Failed to remove file '%s' with oid '%ld'",
+                  file_id, oid.lower);
+
+    return rc;
 }
