@@ -21,7 +21,9 @@ int grh_put(const char *uuid, const char *file_id, const char *context,
             const char *log_file)
 {
     HestiaIoContext io_context;
+    uint8_t *tier_ids;
     HestiaTier tier;
+    size_t num_ids;
     HestiaId id;
     int rc = 0;
 
@@ -52,7 +54,14 @@ int grh_put(const char *uuid, const char *file_id, const char *context,
     if (rc)
         goto free_context;
 
-    rc = hestia_object_put(&id, HESTIA_CREATE, &io_context, &tier);
+    rc = hestia_object_locate(&id, &tier_ids, &num_ids);
+    if (rc)
+        goto free_context;
+
+    if (num_ids == 0) /* If the object doesn't exist, create it */
+        rc = hestia_object_put(&id, HESTIA_CREATE, &io_context, &tier);
+    else /* Otherwise update it */
+        rc = hestia_object_put(&id, HESTIA_UPDATE, &io_context, &tier);
 
 free_context:
     free(io_context.m_path);
