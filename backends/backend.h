@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <errno.h>
 
 __attribute__ ((format (printf, 2, 3)))
 void write_log(const char *log_file, const char *fmt, ...)
@@ -33,18 +34,10 @@ out:
     errno = save_errno;
 }
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 int grh_init(char *context);
 
 int grh_put(const char *file_id, const char *context, const char *log_file);
 int grh_get(const char *file_id, const char *context, const char *log_file);
 int grh_delete(const char *file_id, const char *context, const char *log_file);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif  // __BACKEND_H__

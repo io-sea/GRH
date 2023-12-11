@@ -39,13 +39,13 @@ else()
 endif((NOT HAVE_PHOBOS_STORE) OR (NOT HAVE_PHOBOS_STORE_H))
 
 # HESTIA LIBRARY
-check_include_files("hestia.h" HAVE_HESTIA_H LANGUAGE CXX)
+check_include_files("hestia/hestia_iosea.h" HAVE_HESTIA_H LANGUAGE CXX)
 
 if((NOT HAVE_HESTIA_H))
 	message(FATAL_ERROR "Cannot find Hestia")
 else()
-	add_library(grh_hestia SHARED backend.h hestia.cpp)
+	add_library(grh_hestia SHARED backend.h hestia.c)
 
-	target_link_libraries(grh_hestia hestia_lib stdc++fs)
+	target_link_libraries(grh_hestia hestia stdc++fs)
 	install(TARGETS grh_hestia DESTINATION lib64)
 endif((NOT HAVE_HESTIA_H))
