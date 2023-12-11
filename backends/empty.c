@@ -11,7 +11,8 @@ int grh_init(char *context)
     return 0;
 }
 
-int grh_put(const char *file_id, const char* context, const char *log_file)
+int grh_put(const char *uuid, const char *file_id, const char* context,
+            const char *log_file)
 {
     if (context == NULL)
         write_log("/tmp/grh_log.txt",
@@ -25,7 +26,8 @@ int grh_put(const char *file_id, const char* context, const char *log_file)
     return -ENOTSUP;
 }
 
-int grh_get(const char *file_id, const char* context, const char *log_file)
+int grh_get(const char *uuid, const char *file_id, const char* context,
+            const char *log_file)
 {
     if (context == NULL)
         write_log("/tmp/grh_log.txt",
@@ -39,7 +41,8 @@ int grh_get(const char *file_id, const char* context, const char *log_file)
     return -ENOTSUP;
 }
 
-int grh_delete(const char *file_id, const char* context, const char *log_file)
+int grh_delete(const char *uuid, const char *file_id, const char* context,
+               const char *log_file)
 {
     if (context == NULL)
         write_log("/tmp/grh_log.txt",

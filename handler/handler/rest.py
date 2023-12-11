@@ -23,6 +23,7 @@ DEFAULT_ETA_MS = int(environ.get(DEFAULT_ETA_MS_ENV_NAME,
 REQUEST_JSON_SCHEMA = {
     "type": "object",
     "properties": {
+        "uuid": {"type": "string"},
         "file_id": {"type": "string"},
         "action": {"type": "string"},
         "backend": {"type": "string"},
@@ -66,6 +67,7 @@ def validate_request_list(requests):
     does not follow the following format:
     [
         {
+            "uuid": "<unique_object_identifier>",
             "file_id": "<unique_file_identifier>",
             "action": "<unique_action_identifier>",
             "backend": "<unique_backend_identifier>",

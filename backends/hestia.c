@@ -17,7 +17,8 @@ int grh_init(char *context)
     return 0;
 }
 
-int grh_put(const char *file_id, const char *context, const char *log_file)
+int grh_put(const char *uuid, const char *file_id, const char *context,
+            const char *log_file)
 {
     HestiaIoContext io_context;
     HestiaTier tier;
@@ -31,7 +32,7 @@ int grh_put(const char *file_id, const char *context, const char *log_file)
     if (rc)
         return rc;
 
-    id.m_uuid = strdup(file_id);
+    id.m_uuid = strdup(uuid);
     if (id.m_uuid == NULL)
         return -ENOMEM;
 
@@ -62,7 +63,8 @@ free_id:
     return rc;
 }
 
-int grh_get(const char *file_id, const char *context, const char *log_file)
+int grh_get(const char *uuid, const char *file_id, const char *context,
+            const char *log_file)
 {
     HestiaIoContext io_context;
     HestiaTier tier;
@@ -76,7 +78,7 @@ int grh_get(const char *file_id, const char *context, const char *log_file)
     if (rc)
         return rc;
 
-    id.m_uuid = strdup(file_id);
+    id.m_uuid = strdup(uuid);
     if (id.m_uuid == NULL)
         return -ENOMEM;
 
@@ -107,12 +109,14 @@ free_id:
     return rc;
 }
 
-int grh_delete(const char *file_id, const char *context, const char *log_file)
+int grh_delete(const char *uuid, const char *file_id, const char *context,
+               const char *log_file)
 {
     HestiaId id;
     int rc = 0;
 
     (void) context;
+    (void) file_id;
 
     hestia_initialize("/etc/hestia/hestiad.yaml", NULL, NULL);
 
@@ -120,7 +124,7 @@ int grh_delete(const char *file_id, const char *context, const char *log_file)
     if (rc)
         return rc;
 
-    id.m_uuid = strdup(file_id);
+    id.m_uuid = strdup(uuid);
     if (id.m_uuid == NULL)
         return -ENOMEM;
 

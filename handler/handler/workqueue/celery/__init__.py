@@ -16,7 +16,7 @@ class CeleryWorkQueue(WorkQueue):
         app.conf.broker_url = broker
 
     def push(self, task, backends_ctx):
-        return dispatch.delay(task["file_id"], task["action"],
+        return dispatch.delay(task["uuid"], task["file_id"], task["action"],
                               task["backend"], backends_ctx).id
 
     def status(self, task_id):

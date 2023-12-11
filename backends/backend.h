@@ -36,8 +36,11 @@ out:
 
 int grh_init(char *context);
 
-int grh_put(const char *file_id, const char *context, const char *log_file);
-int grh_get(const char *file_id, const char *context, const char *log_file);
-int grh_delete(const char *file_id, const char *context, const char *log_file);
+int grh_put(const char *uuid, const char *file_id, const char *context,
+            const char *log_file);
+int grh_get(const char *uuid, const char *file_id, const char *context,
+            const char *log_file);
+int grh_delete(const char *uuid, const char *file_id, const char *context,
+               const char *log_file);
 
 #endif  // __BACKEND_H__

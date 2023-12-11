@@ -52,16 +52,19 @@ def init(backend_list):
 
     return backends
 
-def dispatch(file_id, action, backend, backends_ctx):
+def dispatch(uuid, file_id, action, backend, backends_ctx):
     with open("/tmp/blob_handler_dispatch.txt", "a") as f:
         f.write("in dispatch\n")
         f.write("backends_ctx = " + str(backends_ctx) + "\n")
+        f.write("uuid = " + str(uuid) + "\n")
         f.write("file_id = " + str(file_id) + "\n")
         f.write("action = " + str(action) + "\n")
         f.write("backend = " + str(backend) + "\n")
 
     if backend not in backends_ctx:
         raise RuntimeError("95 Not supported yet !")
+
+    uuid_ptr = c_char_p(uuid.encode('utf-8'))
 
     file_id_ptr = c_char_p(file_id.encode('utf-8'))
 
@@ -75,11 +78,12 @@ def dispatch(file_id, action, backend, backends_ctx):
     ptr_ctx = c_char_p(b_ctx)
 
     if action == "put":
-        rc = backend_lib.grh_put(file_id_ptr, ptr_ctx, log_path_ptr)
+        rc = backend_lib.grh_put(uuid_ptr, file_id_ptr, ptr_ctx, log_path_ptr)
     elif action == "get":
-        rc = backend_lib.grh_get(file_id_ptr, ptr_ctx, log_path_ptr)
+        rc = backend_lib.grh_get(uuid_ptr, file_id_ptr, ptr_ctx, log_path_ptr)
     elif action == "delete":
-        rc = backend_lib.grh_delete(file_id_ptr, ptr_ctx, log_path_ptr)
+        rc = backend_lib.grh_delete(uuid_ptr, file_id_ptr, ptr_ctx,
+                                    log_path_ptr)
 
     if rc is not 0:
         os.fsync(log_fd)

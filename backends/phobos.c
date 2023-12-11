@@ -69,8 +69,9 @@ static int xfer_desc_close_fd(struct pho_xfer_desc *xfer)
     return 0;
 }
 
-static int open_xfer_alloc_oid(struct pho_xfer_desc *xfer, const char *file_id,
-                               enum pho_xfer_op op, const char *log_file)
+static int open_xfer_alloc_oid(struct pho_xfer_desc *xfer, const char *uuid,
+                               const char *file_id, enum pho_xfer_op op,
+                               const char *log_file)
 {
     int rc = 0;
 
@@ -82,9 +83,9 @@ static int open_xfer_alloc_oid(struct pho_xfer_desc *xfer, const char *file_id,
     }
 
     xfer->xd_params.put.family = PHO_RSC_DIR;
-    xfer->xd_objid = strdup(file_id);
+    xfer->xd_objid = strdup(uuid);
     if (!xfer->xd_objid) {
-        write_log(log_file, "Couldn't allocate oid '%s'\n", file_id);
+        write_log(log_file, "Couldn't allocate oid '%s'\n", uuid);
         rc = -ENOMEM;
         goto clean_xfer;
     }
@@ -106,14 +107,15 @@ int grh_init(char *context)
     return 0;
 }
 
-int grh_put(const char *file_id, const char *context, const char *log_file)
+int grh_put(const char *uuid, const char *file_id, const char *context,
+            const char *log_file)
 {
     struct pho_xfer_desc xfer = {0};
     int rc;
 
     (void) context;
 
-    rc = open_xfer_alloc_oid(&xfer, file_id, PHO_XFER_OP_PUT, log_file);
+    rc = open_xfer_alloc_oid(&xfer, uuid, file_id, PHO_XFER_OP_PUT, log_file);
     if (rc)
         goto out;
 
@@ -134,14 +136,15 @@ out:
     return rc;
 }
 
-int grh_get(const char *file_id, const char *context, const char *log_file)
+int grh_get(const char *uuid, const char *file_id, const char *context,
+            const char *log_file)
 {
     struct pho_xfer_desc xfer = {0};
     int rc;
 
     (void) context;
 
-    rc = open_xfer_alloc_oid(&xfer, file_id, PHO_XFER_OP_GET, log_file);
+    rc = open_xfer_alloc_oid(&xfer, uuid, file_id, PHO_XFER_OP_GET, log_file);
     if (rc)
         goto out;
 
@@ -161,16 +164,17 @@ out:
     return rc;
 }
 
-int grh_delete(const char *file_id, const char *context, const char *log_file)
+int grh_delete(const char *uuid, const char *file_id, const char *context,
+               const char *log_file)
 {
     struct pho_xfer_desc xfer = {0};
     int rc;
 
     (void) context;
 
-    xfer.xd_objid = strdup(file_id);
+    xfer.xd_objid = strdup(uuid);
     if (!xfer.xd_objid) {
-        write_log(log_file, "Couldn't allocate oid '%s'\n", file_id);
+        write_log(log_file, "Couldn't allocate oid '%s'\n", uuid);
         rc = -ENOMEM;
         goto out;
     }
