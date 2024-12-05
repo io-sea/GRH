@@ -23,6 +23,7 @@ DEFAULT_ETA_MS = int(environ.get(DEFAULT_ETA_MS_ENV_NAME,
 REQUEST_JSON_SCHEMA = {
     "type": "object",
     "properties": {
+        "uuid": {"type": "string"},
         "file_id": {"type": "string"},
         "action": {"type": "string"},
         "backend": {"type": "string"},
@@ -53,23 +54,20 @@ STATUSES_JSON_SCHEMA = {
 VALID_ACTIONS = ["put", "get", "delete"]
 
 # Valid backends for early validation
-VALID_BACKENDS = ["phobos", "s3", "empty"]
+VALID_BACKENDS = ["empty", "phobos", "hestia"]
+backends_ctx = {}
 
 TASK_STATUS = {
     TASK_ST_RUNNING: "running",
     TASK_ST_COMPLETED: "completed",
 }
 
-# Currently, only "empty" is implemented, but the goal is to use VALID_BACKENDS
-# in place of this list
-backend_list = ["empty"]
-backends_ctx = {}
-
 def validate_request_list(requests):
     """Validates a request list and raises a BadRequest error if the list
     does not follow the following format:
     [
         {
+            "uuid": "<unique_object_identifier>",
             "file_id": "<unique_file_identifier>",
             "action": "<unique_action_identifier>",
             "backend": "<unique_backend_identifier>",
@@ -247,6 +245,6 @@ def get_app(work_queue, deduplication_log=None):
         '/requests/status', 'status', get_status, methods=['POST'],
     )
 
-    backends_ctx.update(init(backend_list))
+    backends_ctx.update(init(VALID_BACKENDS))
 
     return handler_app

@@ -51,12 +51,18 @@ class RestApiTest(unittest.TestCase):
     def test_create_success(self):
         """Test /requests for a valid request"""
         valid_rqs = [
-            {"file_id": "foo1", "action": "put", "backend": "s3"},
-            {"file_id": "foo2", "action": "get", "backend": "s3"},
-            {"file_id": "foo3", "action": "delete", "backend": "s3"},
-            {"file_id": "foo1", "action": "put", "backend": "phobos"},
-            {"file_id": "foo2", "action": "get", "backend": "phobos"},
-            {"file_id": "foo3", "action": "delete", "backend": "phobos"},
+            {"uuid": "a", "file_id": "foo1", "action": "put",
+                "backend": "empty"},
+            {"uuid": "b", "file_id": "foo2", "action": "get",
+                "backend": "empty"},
+            {"uuid": "c", "file_id": "foo3", "action": "delete",
+                "backend": "empty"},
+            {"uuid": "d", "file_id": "foo1", "action": "put",
+                "backend": "phobos"},
+            {"uuid": "e", "file_id": "foo2", "action": "get",
+                "backend": "phobos"},
+            {"uuid": "f", "file_id": "foo3", "action": "delete",
+                "backend": "phobos"},
         ]
         resp = self.post_json('/requests', valid_rqs)
         self.assertEqual(resp.status_code, 201)
@@ -79,7 +85,8 @@ class RestApiTest(unittest.TestCase):
 
     def test_create_bad_mime(self):
         """Test /requests when the mime type is not application/json."""
-        good_body = [{"file_id": "foo", "action": "put", "backend": "blob"}]
+        good_body = [{"uuid": "a", "file_id": "foo", "action": "put",
+                      "backend": "blob"}]
         self.assert_http_status_code(
             self.client.post('/requests', data=json.dumps(good_body)),
             400,
@@ -110,7 +117,7 @@ class RestApiTest(unittest.TestCase):
             # Missing backend
             [{"file_id": "foo", "action": "put"}],
             # Bad action
-            [{"file_id": "foo", "action": "bad_action", "backend": "s3"}],
+            [{"file_id": "foo", "action": "bad_action", "backend": "empty"}],
             # Bad backend
             [{"file_id": "foo", "action": "put", "backend": "bad_backend"}],
         ]

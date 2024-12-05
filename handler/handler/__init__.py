@@ -24,36 +24,39 @@
 
 from ctypes import CDLL, create_string_buffer, c_char_p
 from ctypes.util import find_library
+import errno
 import os
 import tempfile
 
 def init(backend_list):
     backends = {}
     for backend in backend_list:
-        libbackend_name = find_library(backend)
+        libbackend_name = find_library("grh_" + backend)
         if libbackend_name is None:
             continue
 
         try:
             backend_lib = CDLL(libbackend_name)
         except Exception as err:
-            raise RuntimeError("95 Not supported yet ! Err = " +
-                               os.strerror(err))
+            raise RuntimeError(str(errno.ELIBACC) + " Failed to open lib " +
+                               str(libbackend_name) + "! Err = " +
+                               os.strerror(errno.ELIBACC))
 
         context_str = create_string_buffer(16)
-        rc = backend_lib.init(context_str)
+        rc = backend_lib.grh_init(context_str)
         if rc is not 0:
-            raise RuntimeError("Initialisation failed, init returned '" +
-                               os.strerror(-rc) + "'")
+            raise RuntimeError(str(-rc) + "Initialisation failed, init " +
+                               "returned '" + os.strerror(-rc) + "'")
 
         backends[backend] = context_str.value.decode("utf-8")
 
     return backends
 
-def dispatch(file_id, action, backend, backends_ctx):
+def dispatch(uuid, file_id, action, backend, backends_ctx):
     with open("/tmp/blob_handler_dispatch.txt", "a") as f:
         f.write("in dispatch\n")
         f.write("backends_ctx = " + str(backends_ctx) + "\n")
+        f.write("uuid = " + str(uuid) + "\n")
         f.write("file_id = " + str(file_id) + "\n")
         f.write("action = " + str(action) + "\n")
         f.write("backend = " + str(backend) + "\n")
@@ -61,9 +64,11 @@ def dispatch(file_id, action, backend, backends_ctx):
     if backend not in backends_ctx:
         raise RuntimeError("95 Not supported yet !")
 
+    uuid_ptr = c_char_p(uuid.encode('utf-8'))
+
     file_id_ptr = c_char_p(file_id.encode('utf-8'))
 
-    libbackend_name = find_library(backend)
+    libbackend_name = find_library("grh_" + backend)
     backend_lib = CDLL(libbackend_name)
 
     log_fd, log_path = tempfile.mkstemp()
@@ -73,11 +78,12 @@ def dispatch(file_id, action, backend, backends_ctx):
     ptr_ctx = c_char_p(b_ctx)
 
     if action == "put":
-        rc = backend_lib.put(file_id_ptr, ptr_ctx, log_path_ptr)
+        rc = backend_lib.grh_put(uuid_ptr, file_id_ptr, ptr_ctx, log_path_ptr)
     elif action == "get":
-        rc = backend_lib.get(file_id_ptr, ptr_ctx, log_path_ptr)
+        rc = backend_lib.grh_get(uuid_ptr, file_id_ptr, ptr_ctx, log_path_ptr)
     elif action == "delete":
-        rc = backend_lib.delete(file_id_ptr, ptr_ctx, log_path_ptr)
+        rc = backend_lib.grh_delete(uuid_ptr, file_id_ptr, ptr_ctx,
+                                    log_path_ptr)
 
     if rc is not 0:
         os.fsync(log_fd)
